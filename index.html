@@ -1,0 +1,254 @@
+<!-- feel free to download this html page @ https://github.com/webhunter69 -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hunter69's Prompt Duplicater Checker for SD</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+    , ::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 30px;
+      background-color: #f0f0f0;
+    }
+
+     .backdrop, textarea {
+      width: 100%;
+      height: 400px;
+      max-width: 100%;
+    }
+
+    .highlights, textarea {
+      padding: 10px;
+      font: 13px 'Open Sans', sans-serif;
+      letter-spacing: 1px;
+    }
+
+
+
+    .backdrop {
+      position: absolute;
+      z-index: 1;
+      border: 2px solid #685972;
+      background-color: #fff;
+      overflow: auto;
+      pointer-events: none;
+      transition: transform 1s;
+    }
+
+    .highlights {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: transparent;
+    }
+
+    textarea {
+      display: block;
+      position: absolute;
+      z-index: 2;
+      margin: 0;
+      border: 2px solid #74637f;
+      border-radius: 0;
+      color: #444;
+      background-color: transparent;
+      overflow: auto;
+      resize: none;
+      transition: transform 1s;
+    }
+
+    textarea:focus, button:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #c6aada;
+    }
+a {text-decoration: none;}
+
+
+
+    #output {
+      padding: 30px;
+    }
+
+    .word-occurrences {
+      padding: 0;
+      margin: 0;
+    }
+#header {
+  text-align: center;
+  margin: 0 auto;
+  max-width: 550px;
+  padding-bottom: 25px;
+}
+
+footer {
+  text-align: center;
+  margin: 0 auto;
+  max-width: 600px;
+  padding-top: 25px;
+}
+
+h1 { font-size: 1.5rem !important; font-weight: 700;}
+h2 { font-size: 1.1rem !important;}
+h4 { font-size: 0.8rem !important; font-weight: 400;}
+
+
+  </style>
+</head>
+<body>
+<div id="header">
+  <h1>Hunter69's Prompt Duplicate Checker for SD</h1>
+  <h2>Experimenting with Stable Diffusion as well?</h2>
+<h4>Get lost with all the prompts grabbed from here and there that it becomes nearly impopssible for lazy people like myself to go through all the prompts to remove and check for duplicates?<br><br> Then simply paste your prompt by pressing Ctrl+V or ⌘+V below, and inspect and remove manually whatever is double ^^</h4>
+</div>
+
+<div class="container">
+
+
+  <div class="row">
+
+<div class="col-12 " style="height: 400px;">
+<div class="position-relative">
+    <div class="backdrop">
+      <div class="highlights"></div>
+    </div>
+
+    <textarea></textarea>
+    </div>
+  
+</div>
+<div class="col-12">
+
+  <div class="" id="output" style="background-color: aliceblue;">
+  </div>
+</div>
+
+</div>
+
+</div>
+  
+<script>
+var $container = $('.container');
+var $backdrop = $('.backdrop');
+var $highlights = $('.highlights');
+var $textarea = $('textarea');
+var $toggle = $('button');
+
+var colorArray = [
+  '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
+  '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+  '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A', 
+  '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+  '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC', 
+  '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+  '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680', 
+  '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+  '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3', 
+  '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'
+];
+
+function handleInput() {
+  var text = $textarea.val();
+  var textArray = text.split(',');
+  textArray = textArray.filter(n => n != '');
+  const occurrences = textArray.reduce(function (acc, curr) {
+    curr = curr.trim().toLowerCase().replace(/[\])}[{(]/g, '').replace(/(:).*/, '')
+    return acc[curr] ? ++acc[curr] : acc[curr] = 1, acc
+  }, []);
+  
+  let occurrencesWithColors = {};let i = 0;
+  for (let [key, value] of Object.entries(occurrences)) {
+    let randomColor = colorArray[i];
+    i++;
+    if (randomColor == undefined) {
+      randomColor = colorArray[Math.floor(Math.random()*colorArray.length)];
+    }
+    occurrencesWithColors[key.trim().toLowerCase().replace(/[\])}[{(]/g, '').replace(/(:).*/, '')] = [key, value, randomColor]; 
+  };
+  
+  textArray = textArray.map(function(element){
+    let key = element.trim().toLowerCase().replace(/[\])}[{(]/g, '').replace(/(:).*/, '');
+    let number_of_occurences = occurrencesWithColors[key][1];
+    let element_value = occurrencesWithColors[key][0];
+    let color = occurrencesWithColors[key][2];
+    return (number_of_occurences > 1) ? `<span style="background-color: ${color}">${element}</span>`: element;
+  });
+  
+  newText = textArray.join(',');
+  $highlights.html(newText);
+
+  // DISPLAY TOTAL OCCURENCES OF WORDS
+  let similarWordsArray = []
+  for (let [key, value] of Object.entries(occurrencesWithColors)) {
+    similarWordsArray.push({
+      key: key,
+      occurrences: occurrencesWithColors[key][1]
+    })
+  }
+  similarWordsArray = similarWordsArray.sort(function( a, b ) {
+    if ( a.occurrences > b.occurrences ){
+      return -1;
+    }
+    if ( a.occurrences < b.occurrences ){
+      return 1;
+    }
+    return 0;
+  });
+  let wordCountHtml = ``;
+  similarWordsArray.forEach(function(item) {
+    wordCountHtml += `<p class="word-occurrences">${item.occurrences} x ${item.key}</p>`;
+  });
+  $('#output').html(wordCountHtml);
+}
+
+function handleScroll() {
+  var scrollTop = $textarea.scrollTop();
+  $backdrop.scrollTop(scrollTop);
+  
+  var scrollLeft = $textarea.scrollLeft();
+  $backdrop.scrollLeft(scrollLeft);  
+}
+
+function bindEvents() {
+  $textarea.on({
+    'input': handleInput,
+    'scroll': handleScroll
+  });
+
+  $toggle.on('click', function() {
+    $container.toggleClass('perspective');
+  });  
+}
+
+bindEvents();
+handleInput();
+</script>
+
+<footer>
+  <div><h4>Check out the links below of my own civitai model, my github and feel free to support me @ patreon :)</div>
+  <div><h4>
+    <a href="https://www.patreon.com/hunter69">
+      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="black" d="M14.82 2.41c3.96 0 7.18 3.24 7.18 7.21c0 3.96-3.22 7.18-7.18 7.18c-3.97 0-7.21-3.22-7.21-7.18c0-3.97 3.24-7.21 7.21-7.21M2 21.6h3.5V2.41H2V21.6Z"/></svg>
+My Patreon </a>
+    <a href="https://civitai.com/models/4680/hunter69-v1">
+<svg class="mantine-ce6723" xmlns="http://www.w3.org/2000/svg" height="18" version="1.1" viewBox="0 0 107 22.7"><path class="mantine-n93tqp" d="M20.8 1.7H3.7L1.5 4.1v15l2.3 2.3h17.1v-5.2H6.7V7h14.1z"></path><path class="mantine-zhwyom" d="M76.1 1.7H56.6V7h7.2v14.3H69V7h7l.1-5.3zm-52.9.1v19.5h5.2V1.8h-5.2zm7.6 0v19.5h7.6l8.3-8.3V1.8h-5.2v8.3l-5.4 6V1.8h-5.3zm18.3 0v19.5h5.2V1.8h-5.2z"></path><path class="mantine-1hpzwiu" d="M100.3 1.8v19.5h5.2V1.8h-5.2zm-4.7 0H80.8l-2.3 2.3v17.2h5.2v-7.1h8.9v7.1h5.2V4.1l-2.2-2.3zm-2.9 7.1h-8.9V7h8.9v1.9z"></path><path class="mantine-17ex0u" d="M46.7 16.2v5.1h-5.1"></path></svg>
+      My Civitai Model </a>
+    <a href="https://github.com/webhunter69">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path fill="#000000" d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
+      </svg>
+      My GitHub
+    </a>
+  </h4></div>
+</footer>
+
+
+</body>
+</html>
